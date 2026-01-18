@@ -121,9 +121,11 @@ form.addEventListener('submit', async (e) => {
       return;
     }
 
+    // Success - hide the email input and show only the success message
+    emailEl.style.display = 'none';
     statusEl.textContent = "You're on the list! ✨";
-    emailEl.value = "";
-    emailEl.focus();
+    statusEl.style.fontSize = '18px';
+    statusEl.style.fontWeight = '600';
 
   } catch (error) {
     console.error('Error:', error);
