@@ -1,0 +1,374 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Playdates — Waitlist</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg:     #d7851c;        /* placeholder lime green */
+      --ink: #ffffff;
+      --hole: #0b0b0b;
+      --card: rgba(0,0,0,.12);
+      --field: rgba(255,255,255,.95);
+      --shadow: rgba(0,0,0,.22);
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      font-family: "Chalkboard", ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      background: var(--bg);
+      overflow:hidden;
+      color: var(--ink);
+    }
+
+    .wrap{
+      height:100%;
+      width:100%;
+      display:flex;
+      align-items:flex-start;
+      justify-content:center;
+      padding: 9vh 24px 24px;
+      position:relative;
+    }
+
+    .headline{
+      position:absolute;
+      top: 8vh;
+      left: 50%;
+      transform: translateX(-50%);
+      font-weight: 800;
+      letter-spacing:-0.02em;
+      text-align:center;
+      font-size: clamp(28px, 4.6vw, 58px);
+      line-height: 1.05;
+      text-shadow: 0 8px 40px var(--shadow);
+      user-select:none;
+      pointer-events:none;
+      white-space: nowrap;
+    }
+
+    /* The "peekaboo" stage */
+    .stage{
+      width: min(900px, 92vw);
+      height: min(520px, 60vh);
+      position:relative;
+      margin-top: 9vh;
+    }
+
+    .hole-btn{
+      position:absolute;
+      left: clamp(24px, 9vw, 120px);
+      top: clamp(260px, 38vh, 30px);
+      width: 140px;
+      height: 140px;
+      border:0;
+      background: transparent;
+      padding:0;
+      cursor:pointer;
+      outline:none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    /* Irregular "hole" shape */
+    .hole{
+      width:100%;
+      height:100%;
+      background: var(--hole);
+      border-radius: 48% 52% 55% 45% / 55% 42% 58% 45%;
+      box-shadow:
+        0 30px 90px rgba(0,0,0,.35),
+        inset 0 0 0 2px rgba(255,255,255,.06);
+      transform-origin: center;
+      transition: all 700ms cubic-bezier(.2,.9,.2,1);
+      filter: drop-shadow(0 10px 35px rgba(0,0,0,.35));
+      position:relative;
+      overflow: hidden;
+    }
+
+    /* tiny "lip" highlight */
+    .hole::after{
+      content:"";
+      position:absolute;
+      inset: 10px 18px 30px 18px;
+      border-radius: 55% 45% 55% 45% / 60% 45% 55% 40%;
+      background: radial-gradient(circle at 40% 30%, rgba(255,255,255,.10), transparent 55%);
+      pointer-events:none;
+      opacity:.9;
+      z-index: 1;
+    }
+
+    /* Content inside the hole */
+    .hole-content{
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      padding: 50px;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 420ms ease, transform 420ms ease;
+      pointer-events: none;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      gap: 20px;
+      color: white;
+      z-index: 2;
+    }
+
+    .opened .hole-content{
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+
+    /* Font for text inside the hole */
+    .hole-content{
+      font-family: "Bricolage Grotesque", sans-serif;
+    }
+
+    .hole-btn:hover .hole{ transform: scale(1.08); }
+    .hole-btn:active .hole{ transform: scale(.98); }
+
+    /* Arrow (SVG) */
+    .arrow{
+      position:absolute;
+      left: clamp(120px, 20vw, 200px);
+      top: clamp(20px, 4vh, 40px);
+      width: 280px;
+      height: 280px;
+      opacity: .95;
+      filter: drop-shadow(0 10px 30px rgba(0,0,0,.25));
+      pointer-events:none;
+      user-select:none;
+    }
+
+
+    .typed{
+      margin: 4px 0 14px;
+      font-size: clamp(18px, 2.2vw, 22px);
+      line-height: 1.35;
+      font-weight: 700;
+      letter-spacing:-0.01em;
+      min-height: 3.2em;
+      white-space: pre-wrap;
+    }
+    .caret{
+      display:inline-block;
+      width: 10px;
+      margin-left: 2px;
+      animation: blink 1s step-end infinite;
+      opacity:.9;
+    }
+    @keyframes blink { 50% { opacity: 0; } }
+
+    .form{
+      display:flex;
+      gap: 10px;
+      flex-wrap: nowrap;
+      align-items:center;
+      justify-content: center;
+    }
+    input[type="email"]{
+      flex: 1 1 260px;
+      min-width: 220px;
+      padding: 14px 14px;
+      border-radius: 14px;
+      border: 1px solid rgba(0,0,0,.12);
+      background: var(--field);
+      font-size: 16px;
+      outline:none;
+    }
+    input[type="email"]:focus{
+      box-shadow: 0 0 0 4px rgba(255,255,255,.28);
+    }
+
+    .btn{
+      padding: 14px 16px;
+      border-radius: 14px;
+      border: 0;
+      background: rgba(0,0,0,.82);
+      color: white;
+      font-weight: 800;
+      font-size: 16px;
+      cursor:pointer;
+    }
+    .btn:hover{ background: rgba(0,0,0,.92); }
+
+    .meta{
+      margin-top: 10px;
+      font-size: 13px;
+      opacity: .9;
+    }
+
+
+    /* Expanded "hole" effect when opened */
+    .opened .hole-btn{
+      width: 650px;
+      height: 320px;
+    }
+    .opened .hole{
+      width: 100%;
+      height: 100%;
+      border-radius: 75% 35% 25% 80% / 45% 65% 75% 35%;
+      background: #BC9629;
+      transition: all 700ms cubic-bezier(.2,.9,.2,1);
+    }
+
+    /* Mobile tweaks */
+    @media (max-width: 520px){
+      .headline{ white-space: normal; padding: 0 10px; }
+      .arrow{ left: 50%; transform: translateX(-50%); width: 200px; height: 200px; }
+      .hole-btn{ left: 18px; top: 250px; width: 120px; height: 120px; }
+      .opened .hole-btn{ width: 450px; height: 250px; }
+      .hole-content{ padding: 30px; gap: 15px; }
+      .typed{ font-size: clamp(16px, 3vw, 18px); }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap" id="wrap">
+    <div class="headline" aria-hidden="true">can you keep a secret?</div>
+
+    <div class="stage">
+      <!-- Arrow -->
+      <svg class="arrow" width="130" height="130" viewBox="0 0 130 130" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path fill-rule="evenodd" clip-rule="evenodd" d="M74.6585 62.4531C76.0551 59.2021 76.6432 56.3541 76.9556 54.1349C79.8591 32.9008 62.9526 21.2644 44.9803 15.928C40.1657 14.4956 32.3006 13.9277 26.3649 16.0815C22.1934 17.5931 18.9591 20.4158 18.1506 25.0751C17.2501 30.1513 19.731 35.4548 23.7371 40.2389C29.5257 47.163 38.4751 53.0226 44.0983 55.567C50.5852 58.4999 61.0783 61.9437 71.7367 63.9618C69.9542 67.3497 67.2528 71.0998 63.0629 74.9712C61.2069 76.6986 58.6526 78.1753 55.7491 79.3628C53.5623 75.1165 50.4383 71.113 46.3771 67.5807C42.959 64.6162 34.616 59.7398 27.2287 58.2432C21.9546 57.179 17.1767 57.8642 14.6407 61.6737C11.4983 66.4092 12.6008 70.8227 15.6697 74.5145C19.9882 79.7151 28.3496 83.4102 33.2929 84.3217C39.0448 85.3791 47.5714 84.3982 54.7199 81.8576C61.3539 96.5947 56.5209 113.929 40.9743 123.463C40.5149 123.751 40.3679 124.367 40.6435 124.837C40.9376 125.308 41.5624 125.455 42.0218 125.166C58.4688 115.076 63.6141 96.736 56.6127 81.1336C59.6999 79.8623 62.438 78.2826 64.4227 76.4385C69.0352 72.171 71.9387 68.0377 73.7948 64.3337C75.7978 64.6777 77.8009 64.9664 79.7856 65.1873C88.6982 66.1842 97.0595 65.772 102.554 62.9046C115.252 56.28 118.781 43.1562 116.373 30.3455C113.984 17.6582 105.77 5.32511 95.13 0.102307C94.6339 -0.140815 94.0275 0.0642701 93.7886 0.559702C93.5497 1.05532 93.7518 1.65495 94.248 1.89789C104.373 6.86764 112.147 18.6417 114.407 30.7142C116.649 42.6635 113.47 54.9521 101.635 61.1312C96.3979 63.853 88.4778 64.1461 80.0062 63.1997C78.242 63.0027 76.4594 62.7506 74.6585 62.4531ZM53.8562 80.0852C51.7796 76.1265 48.8579 72.3907 45.0539 69.0907C41.8013 66.2682 33.8809 61.6285 26.8243 60.2034C22.4507 59.3197 18.4078 59.6168 16.3129 62.7803C13.7402 66.6387 14.7142 70.2297 17.2134 73.2377C21.2195 78.0867 29.0479 81.505 33.6605 82.3547C39.0632 83.3513 47.112 82.4558 53.8562 80.0852ZM72.6371 62.0966C74.0704 58.8709 74.6585 56.0479 74.9709 53.8639C77.7274 33.7311 61.4458 22.9049 44.4107 17.8452C39.9269 16.5091 32.5946 15.9526 27.0449 17.9616C23.5717 19.2251 20.7968 21.5274 20.1169 25.4219C19.3083 29.9703 21.6789 34.6683 25.2623 38.9551C30.8488 45.6374 39.5042 51.2893 44.9252 53.745C51.4122 56.6782 61.9603 60.1292 72.6371 62.0966Z" fill="white"/>
+        <path fill-rule="evenodd" clip-rule="evenodd" d="M42.2278 123.752C42.5954 122.8 43.6428 120.056 43.7898 119.638C44.1941 118.461 44.2309 117.815 44.1942 117.153C44.1574 116.622 44.0471 116.076 44.1023 115.076C44.139 114.525 43.698 114.057 43.1467 114.029C42.5954 114.001 42.1359 114.428 42.0992 114.979C42.0624 115.885 42.1176 116.46 42.1727 116.964C42.2279 117.544 42.2462 117.996 41.8971 118.987C41.7317 119.47 40.5188 122.06 40.2064 123.346C40.041 124.017 40.1329 124.52 40.2615 124.741C40.4453 125.057 40.7762 125.354 41.2907 125.558C41.9523 125.818 43.0548 125.968 44.286 126.165C45.4438 126.347 46.7484 126.578 47.8878 127.067C48.8434 127.484 49.6704 128.087 50.0747 129.09C50.2768 129.603 50.8465 129.857 51.361 129.655C51.8756 129.452 52.1328 128.87 51.9306 128.357C51.3426 126.839 50.1299 125.864 48.6781 125.233C47.3917 124.676 45.9216 124.395 44.5985 124.189C43.8083 124.063 43.0731 123.965 42.5035 123.835C42.4116 123.815 42.3197 123.783 42.2278 123.752Z" fill="white"/>
+      </svg>
+
+      <!-- Clickable hole -->
+      <button class="hole-btn" id="holeBtn" aria-expanded="false" title="Peek">
+        <div class="hole">
+          <div class="hole-content">
+            <div class="typed" id="typed"></div>
+
+            <form class="form" id="waitlistForm" autocomplete="on">
+              <input
+                id="email"
+                name="email"
+                type="email"
+                placeholder="you@example.com"
+                required
+                inputmode="email"
+                autocomplete="email"
+              />
+              <!-- <button class="btn" type="submit">Enter</button> -->
+            </form>
+
+            <div class="meta" id="status" aria-live="polite"></div>
+          </div>
+        </div>
+      </button>
+    </div>
+  </div>
+
+  <script>
+
+    const holeBtn = document.getElementById('holeBtn');
+    const wrap = document.getElementById('wrap');
+    const typedEl = document.getElementById('typed');
+    const form = document.getElementById('waitlistForm');
+    const emailEl = document.getElementById('email');
+    const statusEl = document.getElementById('status');
+
+    const COPY = "playdates is launching soon. \n sign up to be the first to go on a playdate.";
+
+    let opened = false;
+    let typingTimer = null;
+
+
+    function typeText(text, speed = 22){
+      typedEl.textContent = "";
+      const caret = document.createElement('span');
+      caret.className = "caret";
+      caret.textContent = "▍";
+      typedEl.appendChild(caret);
+
+      let i = 0;
+      function tick(){
+        // insert before caret
+        caret.insertAdjacentText('beforebegin', text[i] || "");
+        i++;
+        if (i <= text.length){
+          typingTimer = setTimeout(tick, speed);
+        } else {
+          // done typing: keep caret for a beat, then remove
+          setTimeout(() => caret.remove(), 450);
+        }
+      }
+      tick();
+    }
+
+    function openHole(){
+      if (opened) return;
+      opened = true;
+
+      wrap.classList.add('opened');
+      holeBtn.setAttribute('aria-expanded', 'true');
+
+      // typing
+      clearTimeout(typingTimer);
+      typeText(COPY);
+
+      // focus email shortly after open
+      setTimeout(() => emailEl.focus(), 520);
+    }
+
+    function closeHole(){
+      if (!opened) return;
+      opened = false;
+
+      wrap.classList.remove('opened');
+      holeBtn.setAttribute('aria-expanded', 'false');
+
+      // clear typing
+      clearTimeout(typingTimer);
+      typedEl.textContent = "";
+    }
+
+    holeBtn.addEventListener('click', () => {
+      if (opened) {
+        closeHole();
+      } else {
+        openHole();
+      }
+    });
+
+    // Close hole when clicking outside
+    wrap.addEventListener('click', (e) => {
+      if (opened && !holeBtn.contains(e.target)) {
+        closeHole();
+      }
+    });
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const email = (emailEl.value || "").trim().toLowerCase();
+
+      // basic sanity check (browser will also validate)
+      if (!email || !email.includes('@')) {
+        statusEl.textContent = "Please enter a valid email.";
+        return;
+      }
+
+      statusEl.textContent = "You're on the list! ✨";
+      emailEl.value = "";
+      emailEl.focus();
+    });
+
+
+    // Optional: allow opening via keyboard focus + Enter (button already does)
+  </script>
+</body>
+</html>
